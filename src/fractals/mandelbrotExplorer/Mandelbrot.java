@@ -1,6 +1,5 @@
 package fractals.mandelbrotExplorer;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -16,10 +15,8 @@ import javax.swing.JScrollPane;
 
 public class Mandelbrot extends JPanel {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 610332705523598428L;
+	private static final int BLACK = Color.BLACK.getRGB();
 	private int imagePixelsSquare;
 	private double xAxisScale;
 	private double yAxisScale;
@@ -30,8 +27,7 @@ public class Mandelbrot extends JPanel {
 	private int[] colourPalette;
 	private int[] histogram;
 	private int[] iterants;
-
-	private static final int BLACK = Color.BLACK.getRGB();
+	private double[][] complex;
 
 	public Mandelbrot() {
 		// user input for certain attributes
@@ -58,10 +54,13 @@ public class Mandelbrot extends JPanel {
 		}
 		// inefficient but useful way to store values
 		iterants = new int[imagePixelsSquare * imagePixelsSquare];
+		complex = new double[imagePixelsSquare * imagePixelsSquare][2];
 		preGenerateColours();
 		calculateIterantTerminations();
 		// linearColouring();
-		histogramColouring();
+		// linearColouringSmoothed();
+		// histogramColouring();
+		histogramColouringSmoothed();
 	}
 
 	private void preGenerateColours() {
@@ -99,7 +98,7 @@ public class Mandelbrot extends JPanel {
 				double y = 0.0;
 				int i;
 				for (i = 0; i < sampleDepth; i++) {
-					if (x * x + y * y >= 4) {
+					if (x * x + y * y >= 256) {
 						break;
 					}
 					double tempX = x * x - y * y + x0;
@@ -108,6 +107,8 @@ public class Mandelbrot extends JPanel {
 				}
 				histogram[i]++;
 				iterants[pixelX + pixelY * imagePixelsSquare] = i;
+				complex[pixelX + pixelY * imagePixelsSquare][0] = x;
+				complex[pixelX + pixelY * imagePixelsSquare][1] = y;
 			}
 		}
 	}
@@ -126,25 +127,117 @@ public class Mandelbrot extends JPanel {
 		}
 	}
 
+	@SuppressWarnings("unused")
+	private void linearColouringSmoothed() {
+		for (int pixelY = 0; pixelY < imagePixelsSquare; pixelY++) {
+			for (int pixelX = 0; pixelX < imagePixelsSquare; pixelX++) {
+				int i = iterants[pixelX + pixelY * imagePixelsSquare];
+				if (i == sampleDepth) {
+					imageBuffer.setRGB(pixelX, pixelY, BLACK);
+				} else {
+					double x = complex[pixelX + pixelY * imagePixelsSquare][0];
+					double y = complex[pixelX + pixelY * imagePixelsSquare][1];
+					double i2 = i + 1 - Math.log(Math.log(Math.sqrt(x * x + y * y))) / Math.log(2);
+					imageBuffer.setRGB(pixelX, pixelY,
+							smoothColourGen(i2, colourPalette[((int) Math.floor(i2 * 40)) % colourPalette.length],
+									colourPalette[((int) Math.floor(i2 * 40 + 1)) % colourPalette.length]));
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unused")
 	private void histogramColouring() {
 		int total = 0;
 		for (int i = 0; i < histogram.length; i++) {
 			total += histogram[i];
+		}
+		float[] hues = new float[histogram.length];
+		float h = 0f;
+		for (int i = 0; i < sampleDepth; i++) {
+			h += histogram[i] / (float) total;
+			hues[i] = h;
 		}
 		for (int pixelY = 0; pixelY < imagePixelsSquare; pixelY++) {
 			for (int pixelX = 0; pixelX < imagePixelsSquare; pixelX++) {
 				if (iterants[pixelX + pixelY * imagePixelsSquare] == sampleDepth) {
 					imageBuffer.setRGB(pixelX, pixelY, BLACK);
 				} else {
-					float hue = 0f;
-					for (int i = 0; i < iterants[pixelX + pixelY * imagePixelsSquare]; i++) {
-						hue += histogram[i] / (float) (total);
-					}
+					float hue = hues[iterants[pixelX + pixelY * imagePixelsSquare]];
 					imageBuffer.setRGB(pixelX, pixelY,
 							colourPalette[((int) (hue * colourPalette.length * 10 + colourPalette.length / 3))
 									% colourPalette.length]);
 				}
 			}
+		}
+	}
+
+	private void histogramColouringSmoothed() {
+		int total = 0;
+		for (int i = 0; i < sampleDepth; i++) {
+			total += histogram[i];
+		}
+		float[] hues = new float[sampleDepth];
+		float h = 0f;
+		for (int i = 0; i < sampleDepth; i++) {
+			h += histogram[i] / (float) total;
+			hues[i] = h;
+		}
+		for (int pixelY = 0; pixelY < imagePixelsSquare; pixelY++) {
+			for (int pixelX = 0; pixelX < imagePixelsSquare; pixelX++) {
+				int i = iterants[pixelX + pixelY * imagePixelsSquare];
+				if (i == sampleDepth) {
+					imageBuffer.setRGB(pixelX, pixelY, BLACK);
+				} else {
+					double x = complex[pixelX + pixelY * imagePixelsSquare][0];
+					double y = complex[pixelX + pixelY * imagePixelsSquare][1];
+					double i2 = i + 1 - Math.log(Math.log(Math.sqrt(x * x + y * y))) / Math.log(2);
+					float hue1 = hues[((int) Math.floor(i2)) % hues.length];
+					float hue2 = hues[((int) Math.floor(i2) + 1) % hues.length];
+					imageBuffer.setRGB(pixelX, pixelY, smoothLoopedColourGen(hue1, hue2, 2, 0.8, i2));
+				}
+			}
+		}
+	}
+
+	private int histogramColourIndexFunction(float hue, double repetitions, double offsetPercentage) {
+		return (int) Math.floor(hue * colourPalette.length * repetitions + colourPalette.length * offsetPercentage);
+	}
+
+	private int smoothColourGen(double i2, int colourStart, int colourEnd) {
+		int colourStartRed = new Color(colourStart).getRed();
+		int colourStartGreen = new Color(colourStart).getGreen();
+		int colourStartBlue = new Color(colourStart).getBlue();
+		int colourEndRed = new Color(colourEnd).getRed();
+		int colourEndGreen = new Color(colourEnd).getGreen();
+		int colourEndBlue = new Color(colourEnd).getBlue();
+		float thisRed = linearlyInterpolate(colourStartRed, colourEndRed, (float) i2 % 1) / 255f;
+		float thisGreen = linearlyInterpolate(colourStartGreen, colourEndGreen, (float) i2 % 1) / 255f;
+		float thisBlue = linearlyInterpolate(colourStartBlue, colourEndBlue, (float) i2 % 1) / 255f;
+		if (thisRed > 1f) {
+			thisRed = 1f;
+		}
+		if (thisGreen > 1f) {
+			thisGreen = 1f;
+		}
+		if (thisBlue > 1f) {
+			thisBlue = 1f;
+		}
+		return (new Color(thisRed, thisGreen, thisBlue)).getRGB();
+	}
+
+	private int smoothLoopedColourGen(float hue1, float hue2, double repetitions, double offsetPercentage, double i2) {
+		int startIndex = histogramColourIndexFunction(hue1, repetitions, offsetPercentage);
+		int endIndex = histogramColourIndexFunction(hue2, repetitions, offsetPercentage);
+		int out = (int) linearlyInterpolate(startIndex, endIndex, (float) i2 % 1);
+		return colourPalette[(out % colourPalette.length + colourPalette.length) % colourPalette.length];
+	}
+
+	private float linearlyInterpolate(float x1, float x2, float percentageAlong) {
+		if (percentageAlong >= 0.0 && percentageAlong <= 1.0) {
+			return x1 + (x2 - x1) * percentageAlong;
+		} else {
+			throw new IllegalArgumentException();
 		}
 	}
 
@@ -162,8 +255,9 @@ public class Mandelbrot extends JPanel {
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				JFrame.setDefaultLookAndFeelDecorated(true);
 				Mandelbrot canvas = new Mandelbrot();
-				f.add(canvas, BorderLayout.CENTER);
-				f.getContentPane().add(new JScrollPane(canvas));
+				f.add(canvas);
+				f.getContentPane().add(new JScrollPane(canvas, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 				f.pack();
 				f.setVisible(true);
 			}

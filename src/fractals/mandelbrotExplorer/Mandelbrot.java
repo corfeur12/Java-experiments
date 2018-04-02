@@ -21,6 +21,10 @@ public class Mandelbrot extends JPanel {
 	 */
 	private static final long serialVersionUID = 610332705523598428L;
 	private int imagePixelsSquare;
+	private double xAxisScale;
+	private double yAxisScale;
+	private double xAxisOffset;
+	private double yAxisOffset;
 	private int sampleDepth;
 	private BufferedImage imageBuffer;
 	private int[] colourPalette;
@@ -34,12 +38,20 @@ public class Mandelbrot extends JPanel {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Canvas scale: ");
 		imagePixelsSquare = Integer.parseInt(input.next().trim());
+		System.out.print("X axis scale: ");
+		xAxisScale = Double.parseDouble(input.next().trim());
+		System.out.print("Y axis scale: ");
+		yAxisScale = Double.parseDouble(input.next().trim());
+		System.out.print("X axis offset: ");
+		xAxisOffset = Double.parseDouble(input.next().trim());
+		System.out.print("Y axis offset: ");
+		yAxisOffset = Double.parseDouble(input.next().trim());
 		System.out.print("Maximum depth pass limit: ");
 		sampleDepth = Integer.parseInt(input.next().trim());
 		input.close();
 		setPreferredSize(new Dimension(imagePixelsSquare, imagePixelsSquare));
 		// sets up the colours
-		colourPalette = new int[100];
+		colourPalette = new int[1000];
 		histogram = new int[sampleDepth + 1];
 		for (int i = 0; i < sampleDepth + 1; i++) {
 			histogram[i] = 0;
@@ -47,7 +59,8 @@ public class Mandelbrot extends JPanel {
 		// inefficient but useful way to store values
 		iterants = new int[imagePixelsSquare * imagePixelsSquare];
 		preGenerateColours();
-		generateImage();
+		calculateIterantTerminations();
+		// linearColouring();
 		histogramColouring();
 	}
 
@@ -66,7 +79,7 @@ public class Mandelbrot extends JPanel {
 			colourPalette[i] = (new Color((float) thisRed, (float) thisGreen, (float) thisBlue)).getRGB();
 		}
 	}
-	
+
 	private double rangeCheck(double a) {
 		if (a < 0.0) {
 			return 0;
@@ -76,25 +89,39 @@ public class Mandelbrot extends JPanel {
 		return a;
 	}
 
-	private void generateImage() {
+	private void calculateIterantTerminations() {
 		imageBuffer = new BufferedImage(imagePixelsSquare, imagePixelsSquare, BufferedImage.TYPE_INT_RGB);
 		for (int pixelY = 0; pixelY < imagePixelsSquare; pixelY++) {
 			for (int pixelX = 0; pixelX < imagePixelsSquare; pixelX++) {
-				Double x0 = (pixelX - imagePixelsSquare / 2.0) / imagePixelsSquare * 4.0;
-				Double y0 = (pixelY - imagePixelsSquare / 2.0) / imagePixelsSquare * 4.0;
-				Double x = 0.0;
-				Double y = 0.0;
+				double x0 = (pixelX - imagePixelsSquare / 2.0) / imagePixelsSquare * 4.0 / xAxisScale + xAxisOffset;
+				double y0 = (pixelY - imagePixelsSquare / 2.0) / imagePixelsSquare * 4.0 / yAxisScale + yAxisOffset;
+				double x = 0.0;
+				double y = 0.0;
 				int i;
 				for (i = 0; i < sampleDepth; i++) {
 					if (x * x + y * y >= 4) {
 						break;
 					}
-					Double tempX = x * x - y * y + x0;
+					double tempX = x * x - y * y + x0;
 					y = 2 * x * y + y0;
 					x = tempX;
 				}
 				histogram[i]++;
 				iterants[pixelX + pixelY * imagePixelsSquare] = i;
+			}
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private void linearColouring() {
+		for (int pixelY = 0; pixelY < imagePixelsSquare; pixelY++) {
+			for (int pixelX = 0; pixelX < imagePixelsSquare; pixelX++) {
+				int i = iterants[pixelX + pixelY * imagePixelsSquare];
+				if (i == sampleDepth) {
+					imageBuffer.setRGB(pixelX, pixelY, BLACK);
+				} else {
+					imageBuffer.setRGB(pixelX, pixelY, colourPalette[i * 40 % colourPalette.length]);
+				}
 			}
 		}
 	}
@@ -114,7 +141,7 @@ public class Mandelbrot extends JPanel {
 						hue += histogram[i] / (float) (total);
 					}
 					imageBuffer.setRGB(pixelX, pixelY,
-							colourPalette[((int) (hue * colourPalette.length * 20 + colourPalette.length / 3))
+							colourPalette[((int) (hue * colourPalette.length * 10 + colourPalette.length / 3))
 									% colourPalette.length]);
 				}
 			}

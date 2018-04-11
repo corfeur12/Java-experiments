@@ -13,7 +13,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.apache.log4j.Logger;
+
 public class Mandelbrot extends JPanel {
+	
+	private static final Logger logger = Logger.getLogger(Mandelbrot.class);
 
 	private static final long serialVersionUID = 610332705523598428L;
 	private static final int BLACK = Color.BLACK.getRGB();
@@ -32,19 +36,28 @@ public class Mandelbrot extends JPanel {
 	public Mandelbrot() {
 		// user input for certain attributes
 		Scanner input = new Scanner(System.in);
+		logger.trace("User input parameters");
 		System.out.print("Canvas scale: ");
 		imagePixelsSquare = Integer.parseInt(input.next().trim());
+		logger.trace("Canvas scale: " + imagePixelsSquare);
 		System.out.print("X axis scale: ");
 		xAxisScale = Double.parseDouble(input.next().trim());
+		logger.trace("X axis scale: " + xAxisScale);
 		System.out.print("Y axis scale: ");
 		yAxisScale = Double.parseDouble(input.next().trim());
+		logger.trace("Y axis scale: " + yAxisScale);
 		System.out.print("X axis offset: ");
 		xAxisOffset = Double.parseDouble(input.next().trim());
+		logger.trace("X axis offset: " + xAxisOffset);
 		System.out.print("Y axis offset: ");
 		yAxisOffset = Double.parseDouble(input.next().trim());
+		logger.trace("Y axis offset: " + yAxisOffset);
 		System.out.print("Maximum depth pass limit: ");
 		sampleDepth = Integer.parseInt(input.next().trim());
+		logger.trace("Maximum depth pass limit: " + sampleDepth);
 		input.close();
+		logger.info("Settings: " + imagePixelsSquare + "px square, (" + xAxisScale + ", " + yAxisScale + ") scale, ("
+				+ xAxisOffset + ", " + yAxisOffset + ") offset, " + sampleDepth + " escape.");
 		setPreferredSize(new Dimension(imagePixelsSquare, imagePixelsSquare));
 		// sets up the colours
 		colourPalette = new int[1000];

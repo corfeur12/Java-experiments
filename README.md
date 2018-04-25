@@ -13,12 +13,14 @@ A whole bunch of Java experiments
 ### Experiment Ideas
 
 * Julia set explorer
+* Mandelbuld explorer
 * Tree/trie generator/explorers
-* Graphs (abstractions for the use of Dijkstra's algorithm etc.)
+* Graphs (abstractions for the use of Dijkstra's algorithm, A* search etc.)
 * Hash tables
-* Encryption
+* Encryption (potentially visual)
+* Binary calculator/converter (potentially add hex, octal etc.)
 
-## About these
+## About the experiments
 
 ### Mandelbrot explorer:
 

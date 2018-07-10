@@ -31,6 +31,7 @@ public class LaunchGUI {
 
 	private JFrame frame;
 	private ButtonGroup renderTypeButtons;
+	private JCheckBox smoothedCheckBox;
 
 	public LaunchGUI() {
 		frame = new JFrame("Render Settings");
@@ -40,7 +41,7 @@ public class LaunchGUI {
 		renderPanel.setLayout(new GridLayout(1, 0));
 		JRadioButton linearRadio = new JRadioButton("Linear");
 		JRadioButton histogramRadio = new JRadioButton("Histogram");
-		JCheckBox smoothedCheckBox = new JCheckBox("Smooth colouring");
+		smoothedCheckBox = new JCheckBox("Smooth colouring");
 		linearRadio.setSelected(true);
 		linearRadio.setActionCommand(Integer.toString(RenderSettings.LINEAR));
 		histogramRadio.setActionCommand(Integer.toString(RenderSettings.HISTOGRAM));
@@ -64,8 +65,8 @@ public class LaunchGUI {
 		transformationPanel.add(yOffsetPanel);
 		JPanel imagePanel = new JPanel();
 		imagePanel.setLayout(new GridLayout(2, 1, 10, 10));
-		JPanel pixelSizeInput = labeledSpinnerIntegerInput("Image pixels (square): ", 600, 0, Integer.MAX_VALUE, 10);
-		JPanel sampleDepthInput = labeledSpinnerIntegerInput("Maximum sample depth: ", 25, 0, Integer.MAX_VALUE, 5);
+		JPanel pixelSizeInput = labeledSpinnerIntegerInput("Image pixels (square): ", 500, 1, Integer.MAX_VALUE, 10);
+		JPanel sampleDepthInput = labeledSpinnerIntegerInput("Maximum sample depth: ", 25, 1, Integer.MAX_VALUE, 5);
 		imagePanel.add(pixelSizeInput);
 		imagePanel.add(sampleDepthInput);
 		JPanel buttonPanel = new JPanel();
@@ -83,7 +84,7 @@ public class LaunchGUI {
 		buttonPanel.add(renderButton);
 		// buttonPanel.add(saveButton);
 		// buttonPanel.add(loadButton);
-//		frame.setLayout(new GridLayout(0, 1, 20, 20));
+		// frame.setLayout(new GridLayout(0, 1, 20, 20));
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridwidth = 0;
@@ -102,9 +103,7 @@ public class LaunchGUI {
 		// horrifically inelegant
 		// TODO: sort this mess
 		settings.setRenderMethod(Integer.parseInt(renderTypeButtons.getSelection().getActionCommand()));
-		settings.setSmoothed(
-				(boolean) ((JCheckBox) ((Container) frame.getContentPane().getComponent(0)).getComponent(2))
-						.isSelected());
+		settings.setSmoothed(smoothedCheckBox.isSelected());
 		settings.setXAxisScale(
 				(double) ((JSpinner) ((Container) ((Container) frame.getContentPane().getComponent(1)).getComponent(0))
 						.getComponent(1)).getValue());
@@ -139,7 +138,7 @@ public class LaunchGUI {
 		panel.add(spinner);
 		return panel;
 	}
-	
+
 	private JPanel labeledSpinnerInput(String _name) {
 		JPanel panel = new JPanel();
 		JLabel label = new JLabel(_name);

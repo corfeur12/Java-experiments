@@ -41,7 +41,7 @@ public class RenderSettings {
 	public void initialiseDefaults() {
 		this.renderMethod = LINEAR;
 		this.smoothed = false;
-		this.imagePixelsSquare = 600;
+		this.imagePixelsSquare = 500;
 		this.xAxisScale = 1;
 		this.yAxisScale = 1;
 		this.xAxisOffset = 0;

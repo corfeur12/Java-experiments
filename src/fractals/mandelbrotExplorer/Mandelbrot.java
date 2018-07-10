@@ -1,12 +1,13 @@
 package fractals.mandelbrotExplorer;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -78,7 +79,7 @@ public class Mandelbrot extends JPanel {
 		}
 	}
 
-	private double clipInRange(double _a, double _min, double _max) {
+	private static double clipInRange(double _a, double _min, double _max) {
 		if (_a < _min) {
 			return _min;
 		} else if (_a > _max) {
@@ -91,8 +92,8 @@ public class Mandelbrot extends JPanel {
 		imageBuffer = new BufferedImage(imagePixelsSquare, imagePixelsSquare, BufferedImage.TYPE_INT_RGB);
 		for (int pixelY = 0; pixelY < imagePixelsSquare; pixelY++) {
 			for (int pixelX = 0; pixelX < imagePixelsSquare; pixelX++) {
-				double x0 = (pixelX - imagePixelsSquare / 2.0) / imagePixelsSquare * 4.0 / xAxisScale + xAxisOffset;
-				double y0 = (pixelY - imagePixelsSquare / 2.0) / imagePixelsSquare * 4.0 / yAxisScale + yAxisOffset;
+				double x0 = absoluteToRelativePosition(pixelX, imagePixelsSquare, xAxisScale, xAxisOffset);
+				double y0 = absoluteToRelativePosition(pixelY, imagePixelsSquare, yAxisScale, yAxisOffset);
 				double x = 0.0;
 				double y = 0.0;
 				int i;
@@ -118,6 +119,10 @@ public class Mandelbrot extends JPanel {
 				complex[pixelX + pixelY * imagePixelsSquare] = i2;
 			}
 		}
+	}
+	
+	private static double absoluteToRelativePosition(int _pixel, int _imageScale, double _axisScale, double _axisOffset) {
+		return (_pixel - _imageScale / 2.0) / _imageScale * 4.0 / _axisScale + _axisOffset;
 	}
 
 	private void linearColouring(boolean _smoothed) {
@@ -180,11 +185,11 @@ public class Mandelbrot extends JPanel {
 		}
 	}
 
-	private int getHistogramColourIndex(float _hue, double _repetitions, double _offsetPercentage) {
-		return (int) Math.floor(_hue * colourPalette.length * _repetitions + colourPalette.length * _offsetPercentage);
+	private static int getHistogramColourIndex(int[] _colourPalette, float _hue, double _repetitions, double _offsetPercentage) {
+		return (int) Math.floor(_hue * _colourPalette.length * _repetitions + _colourPalette.length * _offsetPercentage);
 	}
 
-	private int smoothColourGen(double _i2, int _colourStart, int _colourEnd) {
+	private static int smoothColourGen(double _i2, int _colourStart, int _colourEnd) {
 		float red = linearlyInterpolate(new Color(_colourStart).getRed(), new Color(_colourEnd).getRed(),
 				(float) _i2 % 1) / 255f;
 		float green = linearlyInterpolate(new Color(_colourStart).getGreen(), new Color(_colourEnd).getGreen(),
@@ -197,7 +202,7 @@ public class Mandelbrot extends JPanel {
 		return (new Color(red, green, blue)).getRGB();
 	}
 
-	private float clipInRange(float _a, float _min, float _max) {
+	private static float clipInRange(float _a, float _min, float _max) {
 		if (_a < _min) {
 			return _min;
 		} else if (_a > _max) {
@@ -208,13 +213,13 @@ public class Mandelbrot extends JPanel {
 
 	private int smoothLoopedColourGen(float _hue1, float _hue2, double _repetitions, double _offsetPercentage,
 			double _i2) {
-		int startIndex = getHistogramColourIndex(_hue1, _repetitions, _offsetPercentage);
-		int endIndex = getHistogramColourIndex(_hue2, _repetitions, _offsetPercentage);
+		int startIndex = getHistogramColourIndex(colourPalette, _hue1, _repetitions, _offsetPercentage);
+		int endIndex = getHistogramColourIndex(colourPalette, _hue2, _repetitions, _offsetPercentage);
 		int out = (int) linearlyInterpolate(startIndex, endIndex, (float) _i2 % 1);
 		return colourPalette[(out % colourPalette.length + colourPalette.length) % colourPalette.length];
 	}
 
-	private float linearlyInterpolate(float _start, float _along, float _percentageAlong) {
+	private static float linearlyInterpolate(float _start, float _along, float _percentageAlong) {
 		if (_percentageAlong >= 0.0 && _percentageAlong <= 1.0) {
 			return _start + (_along - _start) * _percentageAlong;
 		} else {
@@ -230,19 +235,57 @@ public class Mandelbrot extends JPanel {
 
 	public static void mandelbrotSet(RenderSettings settings) {
 		JFrame frame = new JFrame("Mandelbrot");
-		JPanel panel = new JPanel();
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		panel.setLayout(new GridBagLayout());
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.gridwidth = 0;
-		constraints.insets = new Insets(5, 5, 5, 5);
-		constraints.anchor = GridBagConstraints.NORTH;
-		panel.add((new ImageBarGUI()).getPanel(), constraints);
+		frame.setLayout(new BorderLayout());
 		Mandelbrot canvas = new Mandelbrot(settings);
-		panel.add(canvas, constraints);
-		JScrollPane scroller = new JScrollPane(panel);
+		ImageBarGUI toolbar = new ImageBarGUI(canvas.imageBuffer);
+		canvas.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale, canvas.xAxisOffset);
+				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale, canvas.yAxisOffset);
+				toolbar.setMouseSavedPosition(x, y);
+			}
+		});
+		canvas.addMouseMotionListener(new MouseMotionListener() {
+			
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale, canvas.xAxisOffset);
+				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale, canvas.yAxisOffset);
+				toolbar.setMouseCurrentPosition(x, y);
+			}
+			
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});
+		JScrollPane scroller = new JScrollPane(canvas);
 		scroller.setBorder(BorderFactory.createEmptyBorder());
-		frame.add(scroller);
+		frame.add(toolbar.getToolbar(), BorderLayout.NORTH);
+		frame.add(scroller, BorderLayout.CENTER);
 		frame.pack();
 		frame.setVisible(true);
 	}

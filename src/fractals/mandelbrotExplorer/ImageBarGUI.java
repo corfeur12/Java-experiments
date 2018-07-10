@@ -1,47 +1,82 @@
 package fractals.mandelbrotExplorer;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.JSeparator;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ImageBarGUI {
-	
-	private JPanel panel;
 
-	public ImageBarGUI() {
-		panel = new JPanel();
-		panel.setLayout(new GridBagLayout());
-		GridBagConstraints normalConstraints = new GridBagConstraints();
-		normalConstraints.insets = new Insets(5, 5, 5, 5);
-		normalConstraints.anchor = GridBagConstraints.NORTHWEST;
-		normalConstraints.weightx = 0;
-		JLabel directoryLabel = new JLabel("...");
-		JButton directoryButton = new JButton("Directory");
-		JLabel nameLabel = new JLabel("File name: ");
-		JTextField nameText = new JTextField("Mandelbrot");
-		JList<String> typeDropdown = new JList<>(new String[] {".png", ".jpg"});
-		JScrollPane typeDropdownScroll = new JScrollPane(typeDropdown);
-		typeDropdown.setVisibleRowCount(1);
-		JButton saveButton = new JButton("Save");
-		JPanel emptySpace = new JPanel();
-		emptySpace.setSize(Integer.MAX_VALUE, 1);
-		panel.add(directoryButton, normalConstraints);
-		panel.add(directoryLabel, normalConstraints);
-		panel.add(nameLabel, normalConstraints);
-		panel.add(nameText, normalConstraints);
-		panel.add(typeDropdownScroll, normalConstraints);
-		panel.add(saveButton, normalConstraints);
+	private JToolBar toolbar;
+	private JLabel mousePositionCurrent;
+	private JLabel mousePositionSaved;
+
+	public ImageBarGUI(BufferedImage imageBuffer) {
+		toolbar = new JToolBar("Image settings");
+		JButton saveButton = new JButton("Save image");
+		mousePositionCurrent = new JLabel("Current position: ");
+		mousePositionSaved = new JLabel("Saved position: ");
+		saveButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setDialogTitle("Save image");
+				fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+				fileChooser.setAcceptAllFileFilterUsed(true);
+				fileChooser.setFileFilter(new FileNameExtensionFilter("PNG image", "png"));
+				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPEG image", "jpg", "jpeg"));
+				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("GIF image", "gif"));
+				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("BMP image", "bmp"));
+				int userSelection = fileChooser.showSaveDialog(toolbar);
+				if (userSelection == JFileChooser.APPROVE_OPTION) {
+					File saveFile = fileChooser.getSelectedFile();
+					String selectedDescription = fileChooser.getFileFilter().getDescription().toLowerCase();
+					String selectedFileTypeExtension = selectedDescription.substring(0,
+							selectedDescription.indexOf(" "));
+					if (selectedFileTypeExtension.equals("all")) {
+						selectedFileTypeExtension = saveFile.toString()
+								.substring(saveFile.toString().lastIndexOf(".") + 1, saveFile.toString().length());
+					} else if (!saveFile.toString().endsWith("." + selectedFileTypeExtension)) {
+						saveFile = new File(saveFile.toString() + "." + selectedFileTypeExtension);
+					}
+					try {
+						ImageIO.write(imageBuffer, selectedFileTypeExtension, saveFile);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		toolbar.add(saveButton);
+		toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+		toolbar.add(mousePositionCurrent);
+		toolbar.add(mousePositionSaved);
+//		toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+		toolbar.setFloatable(false);
 	}
-	
-	public JPanel getPanel() {
-		return panel;
+
+	public JToolBar getToolbar() {
+		return toolbar;
+	}
+
+	public void setMouseCurrentPosition(double x, double y) {
+		mousePositionCurrent.setText("Current position: (" + x + ", " + y + ")");
+	}
+
+	public void setMouseSavedPosition(double x, double y) {
+		mousePositionSaved.setText("Saved position: (" + x + ", " + y + ")");
 	}
 
 }

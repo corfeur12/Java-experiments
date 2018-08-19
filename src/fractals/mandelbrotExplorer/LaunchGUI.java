@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -103,12 +105,12 @@ public class LaunchGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				loadRenderJAXB();
+				setInputs(loadRenderJAXB());
 			}
 		});
 		buttonPanel.add(renderButton);
 		buttonPanel.add(saveButton);
-		// buttonPanel.add(loadButton);
+		buttonPanel.add(loadButton);
 		// frame.setLayout(new GridLayout(0, 1, 20, 20));
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -137,7 +139,12 @@ public class LaunchGUI {
 	}
 
 	private void setInputs(RenderSettings toSet) {
-		// renderTypeButtons.setSelected(m, true);
+		Enumeration<AbstractButton> buttons = renderTypeButtons.getElements();
+		AbstractButton thisButton = buttons.nextElement();
+		for (int i = 0; i < toSet.getRenderMethod(); i++) {
+			thisButton = buttons.nextElement();
+		}
+		renderTypeButtons.setSelected(thisButton.getModel(), true);
 		smoothedCheckBox.setSelected(toSet.getSmoothed());
 		xAxisScaleSpinner.setValue(toSet.getXAxisScale());
 		yAxisScaleSpinner.setValue(toSet.getYAxisScale());

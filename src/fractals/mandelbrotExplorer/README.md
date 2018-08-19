@@ -11,10 +11,10 @@ Currently supported for JDK 8 (will need to switch to serialization rather than 
 ## TODO:
 * ~~Position finding (on rendered image) (relative mouse tracking)~~
 * ~~Save image~~
-* Save/load settings
+* ~~Save/load settings~~ with file/name/directory chooser
 * Advanced colour options (choose gradient, looping, offset etc)
 * Optimisation
-* Code cleanup (especially for reading values from the input form)
+* Code cleanup ~~(especially for reading values from the input form)~~
 * Change launch GUI (groupings)
 * Beautify Mandelbrot toolbar
 * Add help dialogue

@@ -1,5 +1,6 @@
 package fractals.mandelbrotExplorer;
 
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -10,9 +11,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JSeparator;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class ImageBarGUI {
@@ -60,10 +60,12 @@ public class ImageBarGUI {
 			}
 		});
 		toolbar.add(saveButton);
-		toolbar.add(new JSeparator(SwingConstants.VERTICAL));
-		toolbar.add(mousePositionCurrent);
-		toolbar.add(mousePositionSaved);
-//		toolbar.add(new JSeparator(SwingConstants.VERTICAL));
+		JPanel positionPanel = new JPanel();
+		positionPanel.setLayout(new GridLayout(0, 1));
+		positionPanel.setBorder(null);
+		positionPanel.add(mousePositionCurrent);
+		positionPanel.add(mousePositionSaved);
+		toolbar.add(positionPanel);
 		toolbar.setFloatable(false);
 	}
 

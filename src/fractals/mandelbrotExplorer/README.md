@@ -1,5 +1,6 @@
 # Mandelbrot Explorer
 Explore the Mandelbrot Fractal and customise viewing parameters.
+Currently supported for JDK 8 (will need to switch to serialization rather than JAXB for JDK 9+)
 
 ## How to use:
 * Set the parameters and click render
@@ -16,3 +17,4 @@ Explore the Mandelbrot Fractal and customise viewing parameters.
 * Code cleanup (especially for reading values from the input form)
 * Change launch GUI (groupings)
 * Beautify Mandelbrot toolbar
+* Add help dialogue

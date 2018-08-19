@@ -1,6 +1,5 @@
 package fractals.mandelbrotExplorer;
 
-import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -32,6 +31,12 @@ public class LaunchGUI {
 	private JFrame frame;
 	private ButtonGroup renderTypeButtons;
 	private JCheckBox smoothedCheckBox;
+	private JSpinner xAxisScaleSpinner;
+	private JSpinner yAxisScaleSpinner;
+	private JSpinner xAxisOffsetSpinner;
+	private JSpinner yAxisOffsetSpinner;
+	private JSpinner imagePixelsSquareSpinner;
+	private JSpinner sampleDepthSpinner;
 
 	public LaunchGUI() {
 		frame = new JFrame("Render Settings");
@@ -54,11 +59,15 @@ public class LaunchGUI {
 		JPanel transformationPanel = new JPanel();
 		transformationPanel.setLayout(new GridLayout(2, 2, 10, 10));
 		JPanel xScalePanel = labeledSpinnerDoubleInput("X axis scale: ", 1, 0, Double.POSITIVE_INFINITY, 1);
+		xAxisScaleSpinner = (JSpinner) xScalePanel.getComponent(1);
 		JPanel yScalePanel = labeledSpinnerDoubleInput("Y axis scale: ", 1, 0, Double.POSITIVE_INFINITY, 1);
+		yAxisScaleSpinner = (JSpinner) yScalePanel.getComponent(1);
 		JPanel xOffsetPanel = labeledSpinnerDoubleInput("X axis offset: ", 0, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY, 0.1);
+		xAxisOffsetSpinner = (JSpinner) xOffsetPanel.getComponent(1);
 		JPanel yOffsetPanel = labeledSpinnerDoubleInput("Y axis offset: ", 0, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY, 0.1);
+		yAxisOffsetSpinner = (JSpinner) yOffsetPanel.getComponent(1);
 		transformationPanel.add(xScalePanel);
 		transformationPanel.add(yScalePanel);
 		transformationPanel.add(xOffsetPanel);
@@ -66,7 +75,9 @@ public class LaunchGUI {
 		JPanel imagePanel = new JPanel();
 		imagePanel.setLayout(new GridLayout(2, 1, 10, 10));
 		JPanel pixelSizeInput = labeledSpinnerIntegerInput("Image pixels (square): ", 500, 1, Integer.MAX_VALUE, 10);
+		imagePixelsSquareSpinner = (JSpinner) pixelSizeInput.getComponent(1);
 		JPanel sampleDepthInput = labeledSpinnerIntegerInput("Maximum sample depth: ", 25, 1, Integer.MAX_VALUE, 5);
+		sampleDepthSpinner = (JSpinner) sampleDepthInput.getComponent(1);
 		imagePanel.add(pixelSizeInput);
 		imagePanel.add(sampleDepthInput);
 		JPanel buttonPanel = new JPanel();
@@ -79,10 +90,24 @@ public class LaunchGUI {
 				Mandelbrot.mandelbrotSet(settings);
 			}
 		});
-		// JButton saveButton = new JButton("Save settings");
-		// JButton loadButton = new JButton("Load settings");
+		JButton saveButton = new JButton("Export settings");
+		saveButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveRenderJAXB(getInputs());
+			}
+		});
+		JButton loadButton = new JButton("Import settings");
+		loadButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadRenderJAXB();
+			}
+		});
 		buttonPanel.add(renderButton);
-		// buttonPanel.add(saveButton);
+		buttonPanel.add(saveButton);
 		// buttonPanel.add(loadButton);
 		// frame.setLayout(new GridLayout(0, 1, 20, 20));
 		GridBagLayout layout = new GridBagLayout();
@@ -100,51 +125,26 @@ public class LaunchGUI {
 
 	private RenderSettings getInputs() {
 		RenderSettings settings = new RenderSettings();
-		// horrifically inelegant
-		// TODO: sort this mess
 		settings.setRenderMethod(Integer.parseInt(renderTypeButtons.getSelection().getActionCommand()));
 		settings.setSmoothed(smoothedCheckBox.isSelected());
-		settings.setXAxisScale(
-				(double) ((JSpinner) ((Container) ((Container) frame.getContentPane().getComponent(1)).getComponent(0))
-						.getComponent(1)).getValue());
-		settings.setXAxisOffset(
-				(double) ((JSpinner) ((Container) ((Container) frame.getContentPane().getComponent(1)).getComponent(2))
-						.getComponent(1)).getValue());
-		settings.setYAxisScale(
-				(double) ((JSpinner) ((Container) ((Container) frame.getContentPane().getComponent(1)).getComponent(1))
-						.getComponent(1)).getValue());
-		settings.setYAxisOffset(
-				(double) ((JSpinner) ((Container) ((Container) frame.getContentPane().getComponent(1)).getComponent(3))
-						.getComponent(1)).getValue());
-		settings.setImagePixelsSquare(
-				(int) ((JSpinner) ((Container) ((Container) frame.getContentPane().getComponent(2)).getComponent(0))
-						.getComponent(1)).getValue());
-		settings.setSampleDepth(
-				(int) ((JSpinner) ((Container) ((Container) frame.getContentPane().getComponent(2)).getComponent(1))
-						.getComponent(1)).getValue());
+		settings.setXAxisScale((double) xAxisScaleSpinner.getValue());
+		settings.setYAxisScale((double) yAxisScaleSpinner.getValue());
+		settings.setXAxisOffset((double) xAxisOffsetSpinner.getValue());
+		settings.setYAxisOffset((double) yAxisOffsetSpinner.getValue());
+		settings.setImagePixelsSquare((int) imagePixelsSquareSpinner.getValue());
+		settings.setSampleDepth((int) sampleDepthSpinner.getValue());
 		return settings;
 	}
 
-	private JPanel labeledSpinnerDoubleInput(String _name, double _begin, double _min, double _max, double _interval) {
-		JPanel panel = labeledSpinnerInput(_name);
-		JSpinner spinner = new JSpinner(new SpinnerNumberModel(_begin, _min, _max, _interval));
-		panel.add(spinner);
-		return panel;
-	}
-
-	private JPanel labeledSpinnerIntegerInput(String _name, int _begin, int _min, int _max, int _interval) {
-		JPanel panel = labeledSpinnerInput(_name);
-		JSpinner spinner = new JSpinner(new SpinnerNumberModel(_begin, _min, _max, _interval));
-		panel.add(spinner);
-		return panel;
-	}
-
-	private JPanel labeledSpinnerInput(String _name) {
-		JPanel panel = new JPanel();
-		JLabel label = new JLabel(_name);
-		panel.setLayout(new GridLayout(1, 2));
-		panel.add(label);
-		return panel;
+	private void setInputs(RenderSettings toSet) {
+		// renderTypeButtons.setSelected(m, true);
+		smoothedCheckBox.setSelected(toSet.getSmoothed());
+		xAxisScaleSpinner.setValue(toSet.getXAxisScale());
+		yAxisScaleSpinner.setValue(toSet.getYAxisScale());
+		xAxisOffsetSpinner.setValue(toSet.getXAxisOffset());
+		yAxisOffsetSpinner.setValue(toSet.getYAxisOffset());
+		imagePixelsSquareSpinner.setValue(toSet.getImagePixelsSquare());
+		sampleDepthSpinner.setValue(toSet.getSampleDepth());
 	}
 
 	private static void saveRenderJAXB(RenderSettings _render) {
@@ -171,6 +171,29 @@ public class LaunchGUI {
 			System.err.println("Data not loaded from XML file. " + e);
 		}
 		return null;
+	}
+
+	private static JPanel labeledSpinnerDoubleInput(String _name, double _begin, double _min, double _max,
+			double _interval) {
+		JPanel panel = labeledSpinnerInput(_name);
+		JSpinner spinner = new JSpinner(new SpinnerNumberModel(_begin, _min, _max, _interval));
+		panel.add(spinner);
+		return panel;
+	}
+
+	private static JPanel labeledSpinnerIntegerInput(String _name, int _begin, int _min, int _max, int _interval) {
+		JPanel panel = labeledSpinnerInput(_name);
+		JSpinner spinner = new JSpinner(new SpinnerNumberModel(_begin, _min, _max, _interval));
+		panel.add(spinner);
+		return panel;
+	}
+
+	private static JPanel labeledSpinnerInput(String _name) {
+		JPanel panel = new JPanel();
+		JLabel label = new JLabel(_name);
+		panel.setLayout(new GridLayout(1, 2));
+		panel.add(label);
+		return panel;
 	}
 
 }

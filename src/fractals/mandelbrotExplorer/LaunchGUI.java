@@ -7,28 +7,42 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.InvalidPropertiesFormatException;
+import java.util.Properties;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class LaunchGUI {
+
+	public static final Properties DEFAULT_RENDER_PROPERTIES;
+	static {
+		DEFAULT_RENDER_PROPERTIES = new Properties();
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.RENDER_METHOD, String.valueOf(RenderSettings.LINEAR));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IS_SMOOTHED, Boolean.toString(false));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IMAGE_PIXELS_SQUARE, "500");
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_SCALE, "1");
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_SCALE, "1");
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_OFFSET, "0");
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_OFFSET, "0");
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.SAMPLE_DEPTH, "25");
+	}
 
 	private JFrame frame;
 	private ButtonGroup renderTypeButtons;
@@ -50,8 +64,8 @@ public class LaunchGUI {
 		JRadioButton histogramRadio = new JRadioButton("Histogram");
 		smoothedCheckBox = new JCheckBox("Smooth colouring");
 		linearRadio.setSelected(true);
-		linearRadio.setActionCommand(Integer.toString(RenderSettings.LINEAR));
-		histogramRadio.setActionCommand(Integer.toString(RenderSettings.HISTOGRAM));
+		linearRadio.setActionCommand(String.valueOf(RenderSettings.LINEAR));
+		histogramRadio.setActionCommand(String.valueOf(RenderSettings.HISTOGRAM));
 		renderTypeButtons = new ButtonGroup();
 		renderTypeButtons.add(linearRadio);
 		renderTypeButtons.add(histogramRadio);
@@ -88,8 +102,10 @@ public class LaunchGUI {
 		renderButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				RenderSettings settings = getInputs();
-				Mandelbrot.mandelbrotSet(settings);
+//				RenderSettings settings = getInputs();
+				Properties renderProperties = getInputs();
+//				Mandelbrot.mandelbrotSet(settings);
+				Mandelbrot.mandelbrotSet(renderProperties);
 			}
 		});
 		JButton saveButton = new JButton("Export settings");
@@ -97,7 +113,18 @@ public class LaunchGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				saveRenderJAXB(getInputs());
+//				saveRenderJAXB(getInputs());
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setDialogTitle("Save settings");
+				fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+				fileChooser.setAcceptAllFileFilterUsed(false);
+				fileChooser.setFileFilter(new FileNameExtensionFilter("XML file", "xml"));
+				fileChooser.setSelectedFile(new File("mandelbrot_render_settings.xml"));
+				int userSelection = fileChooser.showSaveDialog(frame);
+				if (userSelection == JFileChooser.APPROVE_OPTION) {
+					File saveFile = fileChooser.getSelectedFile();
+					saveProperties(getInputs(), saveFile.getAbsolutePath());
+				}
 			}
 		});
 		JButton loadButton = new JButton("Import settings");
@@ -105,7 +132,17 @@ public class LaunchGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setInputs(loadRenderJAXB());
+//				setInputs(loadRenderJAXB());
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setDialogTitle("Load setttings");
+				fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
+				fileChooser.setAcceptAllFileFilterUsed(false);
+				fileChooser.setFileFilter(new FileNameExtensionFilter("XML file", "xml"));
+				int userSelection = fileChooser.showSaveDialog(frame);
+				if (userSelection == JFileChooser.APPROVE_OPTION) {
+					File saveFile = fileChooser.getSelectedFile();
+					setInputs(loadProperties(saveFile.getAbsolutePath()));
+				}
 			}
 		});
 		buttonPanel.add(renderButton);
@@ -125,60 +162,123 @@ public class LaunchGUI {
 		frame.setVisible(true);
 	}
 
-	private RenderSettings getInputs() {
-		RenderSettings settings = new RenderSettings();
-		settings.setRenderMethod(Integer.parseInt(renderTypeButtons.getSelection().getActionCommand()));
-		settings.setSmoothed(smoothedCheckBox.isSelected());
-		settings.setXAxisScale((double) xAxisScaleSpinner.getValue());
-		settings.setYAxisScale((double) yAxisScaleSpinner.getValue());
-		settings.setXAxisOffset((double) xAxisOffsetSpinner.getValue());
-		settings.setYAxisOffset((double) yAxisOffsetSpinner.getValue());
-		settings.setImagePixelsSquare((int) imagePixelsSquareSpinner.getValue());
-		settings.setSampleDepth((int) sampleDepthSpinner.getValue());
-		return settings;
+//	private RenderSettings getInputs() {
+//		RenderSettings settings = new RenderSettings();
+//		settings.setRenderMethod(Integer.parseInt(renderTypeButtons.getSelection().getActionCommand()));
+//		settings.setSmoothed(smoothedCheckBox.isSelected());
+//		settings.setXAxisScale((double) xAxisScaleSpinner.getValue());
+//		settings.setYAxisScale((double) yAxisScaleSpinner.getValue());
+//		settings.setXAxisOffset((double) xAxisOffsetSpinner.getValue());
+//		settings.setYAxisOffset((double) yAxisOffsetSpinner.getValue());
+//		settings.setImagePixelsSquare((int) imagePixelsSquareSpinner.getValue());
+//		settings.setSampleDepth((int) sampleDepthSpinner.getValue());
+//		return settings;
+//	}
+	
+	private Properties getInputs() {
+		Properties properties = new Properties();
+		properties.setProperty(RenderSettings.RENDER_METHOD, renderTypeButtons.getSelection().getActionCommand());
+		properties.setProperty(RenderSettings.IS_SMOOTHED, Boolean.toString(smoothedCheckBox.isSelected()));
+		properties.setProperty(RenderSettings.X_AXIS_SCALE, String.valueOf(xAxisScaleSpinner.getValue()));
+		properties.setProperty(RenderSettings.Y_AXIS_SCALE, String.valueOf(yAxisScaleSpinner.getValue()));
+		properties.setProperty(RenderSettings.X_AXIS_OFFSET, String.valueOf(xAxisOffsetSpinner.getValue()));
+		properties.setProperty(RenderSettings.Y_AXIS_OFFSET, String.valueOf(yAxisOffsetSpinner.getValue()));
+		properties.setProperty(RenderSettings.IMAGE_PIXELS_SQUARE, String.valueOf(imagePixelsSquareSpinner.getValue()));
+		properties.setProperty(RenderSettings.SAMPLE_DEPTH, String.valueOf(sampleDepthSpinner.getValue()));
+		return properties;
 	}
 
-	private void setInputs(RenderSettings toSet) {
+//	private void setInputs(RenderSettings toSet) {
+//		Enumeration<AbstractButton> buttons = renderTypeButtons.getElements();
+//		AbstractButton thisButton = buttons.nextElement();
+//		for (int i = 0; i < toSet.getRenderMethod(); i++) {
+//			thisButton = buttons.nextElement();
+//		}
+//		renderTypeButtons.setSelected(thisButton.getModel(), true);
+//		smoothedCheckBox.setSelected(toSet.getSmoothed());
+//		xAxisScaleSpinner.setValue(toSet.getXAxisScale());
+//		yAxisScaleSpinner.setValue(toSet.getYAxisScale());
+//		xAxisOffsetSpinner.setValue(toSet.getXAxisOffset());
+//		yAxisOffsetSpinner.setValue(toSet.getYAxisOffset());
+//		imagePixelsSquareSpinner.setValue(toSet.getImagePixelsSquare());
+//		sampleDepthSpinner.setValue(toSet.getSampleDepth());
+//	}
+	
+	private void setInputs(Properties properties) {
 		Enumeration<AbstractButton> buttons = renderTypeButtons.getElements();
 		AbstractButton thisButton = buttons.nextElement();
-		for (int i = 0; i < toSet.getRenderMethod(); i++) {
+		for (int i = 0; i < Integer.parseInt(properties.getProperty(RenderSettings.RENDER_METHOD)); i++) {
 			thisButton = buttons.nextElement();
 		}
 		renderTypeButtons.setSelected(thisButton.getModel(), true);
-		smoothedCheckBox.setSelected(toSet.getSmoothed());
-		xAxisScaleSpinner.setValue(toSet.getXAxisScale());
-		yAxisScaleSpinner.setValue(toSet.getYAxisScale());
-		xAxisOffsetSpinner.setValue(toSet.getXAxisOffset());
-		yAxisOffsetSpinner.setValue(toSet.getYAxisOffset());
-		imagePixelsSquareSpinner.setValue(toSet.getImagePixelsSquare());
-		sampleDepthSpinner.setValue(toSet.getSampleDepth());
+		smoothedCheckBox.setSelected(Boolean.parseBoolean(properties.getProperty(RenderSettings.IS_SMOOTHED)));
+		xAxisScaleSpinner.setValue(Double.parseDouble(properties.getProperty(RenderSettings.X_AXIS_SCALE)));
+		yAxisScaleSpinner.setValue(Double.parseDouble(properties.getProperty(RenderSettings.Y_AXIS_SCALE)));
+		xAxisOffsetSpinner.setValue(Double.parseDouble(properties.getProperty(RenderSettings.X_AXIS_OFFSET)));
+		yAxisOffsetSpinner.setValue(Double.parseDouble(properties.getProperty(RenderSettings.Y_AXIS_OFFSET)));
+		imagePixelsSquareSpinner.setValue(Integer.parseInt(properties.getProperty(RenderSettings.IMAGE_PIXELS_SQUARE)));
+		sampleDepthSpinner.setValue(Integer.parseInt(properties.getProperty(RenderSettings.SAMPLE_DEPTH)));
 	}
-
-	private static void saveRenderJAXB(RenderSettings _render) {
+	
+	private static void saveProperties(Properties properties, String fileName) {
 		try {
-			JAXBContext jaxb = JAXBContext.newInstance(RenderSettings.class);
-			Marshaller marsh = jaxb.createMarshaller();
-			marsh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			OutputStream saveFile = new FileOutputStream("renderSave" + ".xml");
-			marsh.marshal(_render, saveFile);
-		} catch (JAXBException e) {
-			System.err.println("Data not saved to XML file. " + e);
+			File f = new File(fileName);
+			FileOutputStream outputStream = new FileOutputStream(f);
+			properties.storeToXML(outputStream, null);
 		} catch (FileNotFoundException e) {
-			System.err.println("BufferedReader failed. " + e);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
-	private static RenderSettings loadRenderJAXB() {
+//	private static void saveRenderJAXB(RenderSettings _render) {
+//		try {
+//			JAXBContext jaxb = JAXBContext.newInstance(RenderSettings.class);
+//			Marshaller marsh = jaxb.createMarshaller();
+//			marsh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+//			OutputStream saveFile = new FileOutputStream("renderSave" + ".xml");
+//			marsh.marshal(_render, saveFile);
+//		} catch (JAXBException e) {
+//			System.err.println("Data not saved to XML file. " + e);
+//		} catch (FileNotFoundException e) {
+//			System.err.println("BufferedReader failed. " + e);
+//		}
+//	}
+	
+	private static Properties loadProperties(String fileName) {
 		try {
-			File f = new File("renderSave" + ".xml");
-			JAXBContext jaxb = JAXBContext.newInstance(RenderSettings.class);
-			Unmarshaller unmarsh = jaxb.createUnmarshaller();
-			return (RenderSettings) unmarsh.unmarshal(f);
-		} catch (JAXBException e) {
-			System.err.println("Data not loaded from XML file. " + e);
+			Properties properties = new Properties();
+			File f = new File(fileName);
+			FileInputStream inputStream = new FileInputStream(f);
+			properties.loadFromXML(inputStream);
+			return properties;
+		} catch (InvalidPropertiesFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
+
+//	private static RenderSettings loadRenderJAXB() {
+//		try {
+//			File f = new File("renderSave" + ".xml");
+//			JAXBContext jaxb = JAXBContext.newInstance(RenderSettings.class);
+//			Unmarshaller unmarsh = jaxb.createUnmarshaller();
+//			return (RenderSettings) unmarsh.unmarshal(f);
+//		} catch (JAXBException e) {
+//			System.err.println("Data not loaded from XML file. " + e);
+//		}
+//		return null;
+//	}
 
 	private static JPanel labeledSpinnerDoubleInput(String _name, double _begin, double _min, double _max,
 			double _interval) {

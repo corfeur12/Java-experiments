@@ -11,6 +11,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -33,13 +34,44 @@ public class Mandelbrot extends JPanel {
 	private int[] histogram;
 	private double[] complex;
 
-	public Mandelbrot(RenderSettings settings) {
-		imagePixelsSquare = settings.getImagePixelsSquare();
-		xAxisScale = settings.getXAxisScale();
-		yAxisScale = settings.getYAxisScale();
-		xAxisOffset = settings.getXAxisOffset();
-		yAxisOffset = settings.getYAxisOffset();
-		sampleDepth = settings.getSampleDepth();
+//	public Mandelbrot(RenderSettings settings) {
+//		imagePixelsSquare = settings.getImagePixelsSquare();
+//		xAxisScale = settings.getXAxisScale();
+//		yAxisScale = settings.getYAxisScale();
+//		xAxisOffset = settings.getXAxisOffset();
+//		yAxisOffset = settings.getYAxisOffset();
+//		sampleDepth = settings.getSampleDepth();
+//		setPreferredSize(new Dimension(imagePixelsSquare, imagePixelsSquare));
+//		// sets up the colours
+//		colourPalette = new int[1000];
+//		histogram = new int[sampleDepth + 1];
+//		for (int i = 0; i < sampleDepth + 1; i++) {
+//			histogram[i] = 0;
+//		}
+//		// inefficient but useful way to store values
+//		complex = new double[imagePixelsSquare * imagePixelsSquare];
+//		preGenerateColours();
+//		calculateIterantTerminations(settings.getSmoothed());
+//		switch (settings.getRenderMethod()) {
+//		case RenderSettings.LINEAR:
+//			linearColouring(settings.getSmoothed());
+//			break;
+//		case RenderSettings.HISTOGRAM:
+//			histogramColouring(settings.getSmoothed());
+//			break;
+//		default:
+//			throw new IllegalArgumentException("Invalid render method.");
+//		}
+//	}
+	
+	public Mandelbrot(Properties settings) {
+		imagePixelsSquare = Integer.parseInt(settings.getProperty(RenderSettings.IMAGE_PIXELS_SQUARE));
+		xAxisScale = Double.parseDouble(settings.getProperty(RenderSettings.X_AXIS_SCALE));
+		yAxisScale = Double.parseDouble(settings.getProperty(RenderSettings.Y_AXIS_SCALE));
+		xAxisOffset = Double.parseDouble(settings.getProperty(RenderSettings.X_AXIS_OFFSET));
+		yAxisOffset = Double.parseDouble(settings.getProperty(RenderSettings.Y_AXIS_OFFSET));
+		sampleDepth = Integer.parseInt(settings.getProperty(RenderSettings.SAMPLE_DEPTH));
+		boolean isSmoothed = Boolean.parseBoolean(settings.getProperty(RenderSettings.IS_SMOOTHED));
 		setPreferredSize(new Dimension(imagePixelsSquare, imagePixelsSquare));
 		// sets up the colours
 		colourPalette = new int[1000];
@@ -50,13 +82,13 @@ public class Mandelbrot extends JPanel {
 		// inefficient but useful way to store values
 		complex = new double[imagePixelsSquare * imagePixelsSquare];
 		preGenerateColours();
-		calculateIterantTerminations(settings.getSmoothed());
-		switch (settings.getRenderMethod()) {
+		calculateIterantTerminations(isSmoothed);
+		switch (Integer.parseInt(settings.getProperty(RenderSettings.RENDER_METHOD))) {
 		case RenderSettings.LINEAR:
-			linearColouring(settings.getSmoothed());
+			linearColouring(isSmoothed);
 			break;
 		case RenderSettings.HISTOGRAM:
-			histogramColouring(settings.getSmoothed());
+			histogramColouring(isSmoothed);
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid render method.");
@@ -233,7 +265,64 @@ public class Mandelbrot extends JPanel {
 		_g.drawImage(imageBuffer, 0, 0, null);
 	}
 
-	public static void mandelbrotSet(RenderSettings settings) {
+//	public static void mandelbrotSet(RenderSettings settings) {
+//		JFrame frame = new JFrame("Mandelbrot");
+//		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+//		frame.setLayout(new BorderLayout());
+//		Mandelbrot canvas = new Mandelbrot(settings);
+//		ImageBarGUI toolbar = new ImageBarGUI(canvas.imageBuffer);
+//		canvas.addMouseListener(new MouseListener() {
+//
+//			@Override
+//			public void mouseReleased(MouseEvent e) {
+//				// TODO Auto-generated method stub
+//			}
+//
+//			@Override
+//			public void mousePressed(MouseEvent e) {
+//				// TODO Auto-generated method stub
+//			}
+//
+//			@Override
+//			public void mouseExited(MouseEvent e) {
+//				// TODO Auto-generated method stub
+//			}
+//
+//			@Override
+//			public void mouseEntered(MouseEvent e) {
+//				// TODO Auto-generated method stub
+//			}
+//
+//			@Override
+//			public void mouseClicked(MouseEvent e) {
+//				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale, canvas.xAxisOffset);
+//				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale, canvas.yAxisOffset);
+//				toolbar.setMouseSavedPosition(x, y);
+//			}
+//		});
+//		canvas.addMouseMotionListener(new MouseMotionListener() {
+//			
+//			@Override
+//			public void mouseMoved(MouseEvent e) {
+//				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale, canvas.xAxisOffset);
+//				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale, canvas.yAxisOffset);
+//				toolbar.setMouseCurrentPosition(x, y);
+//			}
+//			
+//			@Override
+//			public void mouseDragged(MouseEvent e) {
+//				// TODO Auto-generated method stub
+//			}
+//		});
+//		JScrollPane scroller = new JScrollPane(canvas);
+//		scroller.setBorder(BorderFactory.createEmptyBorder());
+//		frame.add(toolbar.getToolbar(), BorderLayout.NORTH);
+//		frame.add(scroller, BorderLayout.CENTER);
+//		frame.pack();
+//		frame.setVisible(true);
+//	}
+	
+	public static void mandelbrotSet(Properties settings) {
 		JFrame frame = new JFrame("Mandelbrot");
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		frame.setLayout(new BorderLayout());

@@ -34,14 +34,14 @@ public class LaunchGUI {
 	public static final Properties DEFAULT_RENDER_PROPERTIES;
 	static {
 		DEFAULT_RENDER_PROPERTIES = new Properties();
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.RENDER_METHOD, String.valueOf(RenderSettings.LINEAR));
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IS_SMOOTHED, Boolean.toString(false));
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IMAGE_PIXELS_SQUARE, "500");
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_SCALE, "1");
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_SCALE, "1");
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_OFFSET, "0");
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_OFFSET, "0");
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.SAMPLE_DEPTH, "25");
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.RENDER_METHOD, String.valueOf(RenderSettings.DEFAULT_RENDER_METHOD));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IS_SMOOTHED, Boolean.toString(RenderSettings.DEFAULT_IS_SMOOTHED));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IMAGE_PIXELS_SQUARE, String.valueOf(RenderSettings.DEFAULT_IMAGE_PIXELS_SQUARE));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_SCALE, String.valueOf(RenderSettings.DEFAULT_X_AXIS_SCALE));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_SCALE, String.valueOf(RenderSettings.DEFAULT_Y_AXIS_SCALE));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_OFFSET, String.valueOf(RenderSettings.DEFAULT_X_AXIS_OFFSET));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_OFFSET, String.valueOf(RenderSettings.DEFAULT_X_AXIS_OFFSET));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.SAMPLE_DEPTH, String.valueOf(RenderSettings.DEFAULT_SAMPLE_DEPTH));
 	}
 
 	private JFrame frame;
@@ -63,9 +63,16 @@ public class LaunchGUI {
 		JRadioButton linearRadio = new JRadioButton("Linear");
 		JRadioButton histogramRadio = new JRadioButton("Histogram");
 		smoothedCheckBox = new JCheckBox("Smooth colouring");
-		linearRadio.setSelected(true);
+		smoothedCheckBox.setSelected(RenderSettings.DEFAULT_IS_SMOOTHED);
 		linearRadio.setActionCommand(String.valueOf(RenderSettings.LINEAR));
 		histogramRadio.setActionCommand(String.valueOf(RenderSettings.HISTOGRAM));
+		
+		if(RenderSettings.DEFAULT_RENDER_METHOD == RenderSettings.LINEAR) {
+			linearRadio.setSelected(true);
+		} else {
+			histogramRadio.setSelected(true);
+		}
+		
 		renderTypeButtons = new ButtonGroup();
 		renderTypeButtons.add(linearRadio);
 		renderTypeButtons.add(histogramRadio);
@@ -74,14 +81,14 @@ public class LaunchGUI {
 		renderPanel.add(smoothedCheckBox);
 		JPanel transformationPanel = new JPanel();
 		transformationPanel.setLayout(new GridLayout(2, 2, 10, 10));
-		JPanel xScalePanel = labeledSpinnerDoubleInput("X axis scale: ", 1, 0, Double.POSITIVE_INFINITY, 1);
+		JPanel xScalePanel = labeledSpinnerDoubleInput("X axis scale: ", RenderSettings.DEFAULT_X_AXIS_SCALE, 0, Double.POSITIVE_INFINITY, 1);
 		xAxisScaleSpinner = (JSpinner) xScalePanel.getComponent(1);
-		JPanel yScalePanel = labeledSpinnerDoubleInput("Y axis scale: ", 1, 0, Double.POSITIVE_INFINITY, 1);
+		JPanel yScalePanel = labeledSpinnerDoubleInput("Y axis scale: ", RenderSettings.DEFAULT_Y_AXIS_SCALE, 0, Double.POSITIVE_INFINITY, 1);
 		yAxisScaleSpinner = (JSpinner) yScalePanel.getComponent(1);
-		JPanel xOffsetPanel = labeledSpinnerDoubleInput("X axis offset: ", 0, Double.NEGATIVE_INFINITY,
+		JPanel xOffsetPanel = labeledSpinnerDoubleInput("X axis offset: ", RenderSettings.DEFAULT_X_AXIS_OFFSET, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY, 0.1);
 		xAxisOffsetSpinner = (JSpinner) xOffsetPanel.getComponent(1);
-		JPanel yOffsetPanel = labeledSpinnerDoubleInput("Y axis offset: ", 0, Double.NEGATIVE_INFINITY,
+		JPanel yOffsetPanel = labeledSpinnerDoubleInput("Y axis offset: ", RenderSettings.DEFAULT_Y_AXIS_OFFSET, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY, 0.1);
 		yAxisOffsetSpinner = (JSpinner) yOffsetPanel.getComponent(1);
 		transformationPanel.add(xScalePanel);
@@ -90,9 +97,9 @@ public class LaunchGUI {
 		transformationPanel.add(yOffsetPanel);
 		JPanel imagePanel = new JPanel();
 		imagePanel.setLayout(new GridLayout(2, 1, 10, 10));
-		JPanel pixelSizeInput = labeledSpinnerIntegerInput("Image pixels (square): ", 500, 1, Integer.MAX_VALUE, 10);
+		JPanel pixelSizeInput = labeledSpinnerIntegerInput("Image pixels (square): ", RenderSettings.DEFAULT_IMAGE_PIXELS_SQUARE, 1, Integer.MAX_VALUE, 10);
 		imagePixelsSquareSpinner = (JSpinner) pixelSizeInput.getComponent(1);
-		JPanel sampleDepthInput = labeledSpinnerIntegerInput("Maximum sample depth: ", 25, 1, Integer.MAX_VALUE, 5);
+		JPanel sampleDepthInput = labeledSpinnerIntegerInput("Maximum sample depth: ", RenderSettings.DEFAULT_SAMPLE_DEPTH, 1, Integer.MAX_VALUE, 5);
 		sampleDepthSpinner = (JSpinner) sampleDepthInput.getComponent(1);
 		imagePanel.add(pixelSizeInput);
 		imagePanel.add(sampleDepthInput);
@@ -102,9 +109,7 @@ public class LaunchGUI {
 		renderButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				RenderSettings settings = getInputs();
 				Properties renderProperties = getInputs();
-//				Mandelbrot.mandelbrotSet(settings);
 				Mandelbrot.mandelbrotSet(renderProperties);
 			}
 		});
@@ -113,7 +118,6 @@ public class LaunchGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				saveRenderJAXB(getInputs());
 				JFileChooser fileChooser = new JFileChooser();
 				fileChooser.setDialogTitle("Save settings");
 				fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -132,7 +136,6 @@ public class LaunchGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				setInputs(loadRenderJAXB());
 				JFileChooser fileChooser = new JFileChooser();
 				fileChooser.setDialogTitle("Load setttings");
 				fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
@@ -148,7 +151,6 @@ public class LaunchGUI {
 		buttonPanel.add(renderButton);
 		buttonPanel.add(saveButton);
 		buttonPanel.add(loadButton);
-		// frame.setLayout(new GridLayout(0, 1, 20, 20));
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridwidth = 0;
@@ -161,22 +163,9 @@ public class LaunchGUI {
 		frame.pack();
 		frame.setVisible(true);
 	}
-
-//	private RenderSettings getInputs() {
-//		RenderSettings settings = new RenderSettings();
-//		settings.setRenderMethod(Integer.parseInt(renderTypeButtons.getSelection().getActionCommand()));
-//		settings.setSmoothed(smoothedCheckBox.isSelected());
-//		settings.setXAxisScale((double) xAxisScaleSpinner.getValue());
-//		settings.setYAxisScale((double) yAxisScaleSpinner.getValue());
-//		settings.setXAxisOffset((double) xAxisOffsetSpinner.getValue());
-//		settings.setYAxisOffset((double) yAxisOffsetSpinner.getValue());
-//		settings.setImagePixelsSquare((int) imagePixelsSquareSpinner.getValue());
-//		settings.setSampleDepth((int) sampleDepthSpinner.getValue());
-//		return settings;
-//	}
 	
 	private Properties getInputs() {
-		Properties properties = new Properties();
+		Properties properties = new Properties(DEFAULT_RENDER_PROPERTIES);
 		properties.setProperty(RenderSettings.RENDER_METHOD, renderTypeButtons.getSelection().getActionCommand());
 		properties.setProperty(RenderSettings.IS_SMOOTHED, Boolean.toString(smoothedCheckBox.isSelected()));
 		properties.setProperty(RenderSettings.X_AXIS_SCALE, String.valueOf(xAxisScaleSpinner.getValue()));
@@ -187,22 +176,6 @@ public class LaunchGUI {
 		properties.setProperty(RenderSettings.SAMPLE_DEPTH, String.valueOf(sampleDepthSpinner.getValue()));
 		return properties;
 	}
-
-//	private void setInputs(RenderSettings toSet) {
-//		Enumeration<AbstractButton> buttons = renderTypeButtons.getElements();
-//		AbstractButton thisButton = buttons.nextElement();
-//		for (int i = 0; i < toSet.getRenderMethod(); i++) {
-//			thisButton = buttons.nextElement();
-//		}
-//		renderTypeButtons.setSelected(thisButton.getModel(), true);
-//		smoothedCheckBox.setSelected(toSet.getSmoothed());
-//		xAxisScaleSpinner.setValue(toSet.getXAxisScale());
-//		yAxisScaleSpinner.setValue(toSet.getYAxisScale());
-//		xAxisOffsetSpinner.setValue(toSet.getXAxisOffset());
-//		yAxisOffsetSpinner.setValue(toSet.getYAxisOffset());
-//		imagePixelsSquareSpinner.setValue(toSet.getImagePixelsSquare());
-//		sampleDepthSpinner.setValue(toSet.getSampleDepth());
-//	}
 	
 	private void setInputs(Properties properties) {
 		Enumeration<AbstractButton> buttons = renderTypeButtons.getElements();
@@ -233,24 +206,10 @@ public class LaunchGUI {
 			e.printStackTrace();
 		}
 	}
-
-//	private static void saveRenderJAXB(RenderSettings _render) {
-//		try {
-//			JAXBContext jaxb = JAXBContext.newInstance(RenderSettings.class);
-//			Marshaller marsh = jaxb.createMarshaller();
-//			marsh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-//			OutputStream saveFile = new FileOutputStream("renderSave" + ".xml");
-//			marsh.marshal(_render, saveFile);
-//		} catch (JAXBException e) {
-//			System.err.println("Data not saved to XML file. " + e);
-//		} catch (FileNotFoundException e) {
-//			System.err.println("BufferedReader failed. " + e);
-//		}
-//	}
 	
 	private static Properties loadProperties(String fileName) {
 		try {
-			Properties properties = new Properties();
+			Properties properties = new Properties(DEFAULT_RENDER_PROPERTIES);
 			File f = new File(fileName);
 			FileInputStream inputStream = new FileInputStream(f);
 			properties.loadFromXML(inputStream);
@@ -267,18 +226,6 @@ public class LaunchGUI {
 		}
 		return null;
 	}
-
-//	private static RenderSettings loadRenderJAXB() {
-//		try {
-//			File f = new File("renderSave" + ".xml");
-//			JAXBContext jaxb = JAXBContext.newInstance(RenderSettings.class);
-//			Unmarshaller unmarsh = jaxb.createUnmarshaller();
-//			return (RenderSettings) unmarsh.unmarshal(f);
-//		} catch (JAXBException e) {
-//			System.err.println("Data not loaded from XML file. " + e);
-//		}
-//		return null;
-//	}
 
 	private static JPanel labeledSpinnerDoubleInput(String _name, double _begin, double _min, double _max,
 			double _interval) {

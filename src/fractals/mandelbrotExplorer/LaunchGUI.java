@@ -32,16 +32,25 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class LaunchGUI {
 
 	public static final Properties DEFAULT_RENDER_PROPERTIES;
+	// initialise the default render properties
 	static {
 		DEFAULT_RENDER_PROPERTIES = new Properties();
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.RENDER_METHOD, String.valueOf(RenderSettings.DEFAULT_RENDER_METHOD));
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IS_SMOOTHED, Boolean.toString(RenderSettings.DEFAULT_IS_SMOOTHED));
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IMAGE_PIXELS_SQUARE, String.valueOf(RenderSettings.DEFAULT_IMAGE_PIXELS_SQUARE));
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_SCALE, String.valueOf(RenderSettings.DEFAULT_X_AXIS_SCALE));
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_SCALE, String.valueOf(RenderSettings.DEFAULT_Y_AXIS_SCALE));
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_OFFSET, String.valueOf(RenderSettings.DEFAULT_X_AXIS_OFFSET));
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_OFFSET, String.valueOf(RenderSettings.DEFAULT_X_AXIS_OFFSET));
-		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.SAMPLE_DEPTH, String.valueOf(RenderSettings.DEFAULT_SAMPLE_DEPTH));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.RENDER_METHOD,
+				String.valueOf(RenderSettings.DEFAULT_RENDER_METHOD));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IS_SMOOTHED,
+				Boolean.toString(RenderSettings.DEFAULT_IS_SMOOTHED));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.IMAGE_PIXELS_SQUARE,
+				String.valueOf(RenderSettings.DEFAULT_IMAGE_PIXELS_SQUARE));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_SCALE,
+				String.valueOf(RenderSettings.DEFAULT_X_AXIS_SCALE));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_SCALE,
+				String.valueOf(RenderSettings.DEFAULT_Y_AXIS_SCALE));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.X_AXIS_OFFSET,
+				String.valueOf(RenderSettings.DEFAULT_X_AXIS_OFFSET));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.Y_AXIS_OFFSET,
+				String.valueOf(RenderSettings.DEFAULT_X_AXIS_OFFSET));
+		DEFAULT_RENDER_PROPERTIES.setProperty(RenderSettings.SAMPLE_DEPTH,
+				String.valueOf(RenderSettings.DEFAULT_SAMPLE_DEPTH));
 	}
 
 	private JFrame frame;
@@ -66,13 +75,11 @@ public class LaunchGUI {
 		smoothedCheckBox.setSelected(RenderSettings.DEFAULT_IS_SMOOTHED);
 		linearRadio.setActionCommand(String.valueOf(RenderSettings.LINEAR));
 		histogramRadio.setActionCommand(String.valueOf(RenderSettings.HISTOGRAM));
-		
-		if(RenderSettings.DEFAULT_RENDER_METHOD == RenderSettings.LINEAR) {
+		if (RenderSettings.DEFAULT_RENDER_METHOD == RenderSettings.LINEAR) {
 			linearRadio.setSelected(true);
 		} else {
 			histogramRadio.setSelected(true);
 		}
-		
 		renderTypeButtons = new ButtonGroup();
 		renderTypeButtons.add(linearRadio);
 		renderTypeButtons.add(histogramRadio);
@@ -81,15 +88,17 @@ public class LaunchGUI {
 		renderPanel.add(smoothedCheckBox);
 		JPanel transformationPanel = new JPanel();
 		transformationPanel.setLayout(new GridLayout(2, 2, 10, 10));
-		JPanel xScalePanel = labeledSpinnerDoubleInput("X axis scale: ", RenderSettings.DEFAULT_X_AXIS_SCALE, 0, Double.POSITIVE_INFINITY, 1);
+		JPanel xScalePanel = labeledSpinnerDoubleInput("X axis scale: ", RenderSettings.DEFAULT_X_AXIS_SCALE, 0,
+				Double.POSITIVE_INFINITY, 1);
 		xAxisScaleSpinner = (JSpinner) xScalePanel.getComponent(1);
-		JPanel yScalePanel = labeledSpinnerDoubleInput("Y axis scale: ", RenderSettings.DEFAULT_Y_AXIS_SCALE, 0, Double.POSITIVE_INFINITY, 1);
+		JPanel yScalePanel = labeledSpinnerDoubleInput("Y axis scale: ", RenderSettings.DEFAULT_Y_AXIS_SCALE, 0,
+				Double.POSITIVE_INFINITY, 1);
 		yAxisScaleSpinner = (JSpinner) yScalePanel.getComponent(1);
-		JPanel xOffsetPanel = labeledSpinnerDoubleInput("X axis offset: ", RenderSettings.DEFAULT_X_AXIS_OFFSET, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY, 0.1);
+		JPanel xOffsetPanel = labeledSpinnerDoubleInput("X axis offset: ", RenderSettings.DEFAULT_X_AXIS_OFFSET,
+				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 0.1);
 		xAxisOffsetSpinner = (JSpinner) xOffsetPanel.getComponent(1);
-		JPanel yOffsetPanel = labeledSpinnerDoubleInput("Y axis offset: ", RenderSettings.DEFAULT_Y_AXIS_OFFSET, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY, 0.1);
+		JPanel yOffsetPanel = labeledSpinnerDoubleInput("Y axis offset: ", RenderSettings.DEFAULT_Y_AXIS_OFFSET,
+				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 0.1);
 		yAxisOffsetSpinner = (JSpinner) yOffsetPanel.getComponent(1);
 		transformationPanel.add(xScalePanel);
 		transformationPanel.add(yScalePanel);
@@ -97,9 +106,11 @@ public class LaunchGUI {
 		transformationPanel.add(yOffsetPanel);
 		JPanel imagePanel = new JPanel();
 		imagePanel.setLayout(new GridLayout(2, 1, 10, 10));
-		JPanel pixelSizeInput = labeledSpinnerIntegerInput("Image pixels (square): ", RenderSettings.DEFAULT_IMAGE_PIXELS_SQUARE, 1, Integer.MAX_VALUE, 10);
+		JPanel pixelSizeInput = labeledSpinnerIntegerInput("Image pixels (square): ",
+				RenderSettings.DEFAULT_IMAGE_PIXELS_SQUARE, 1, Integer.MAX_VALUE, 10);
 		imagePixelsSquareSpinner = (JSpinner) pixelSizeInput.getComponent(1);
-		JPanel sampleDepthInput = labeledSpinnerIntegerInput("Maximum sample depth: ", RenderSettings.DEFAULT_SAMPLE_DEPTH, 1, Integer.MAX_VALUE, 5);
+		JPanel sampleDepthInput = labeledSpinnerIntegerInput("Maximum sample depth: ",
+				RenderSettings.DEFAULT_SAMPLE_DEPTH, 1, Integer.MAX_VALUE, 5);
 		sampleDepthSpinner = (JSpinner) sampleDepthInput.getComponent(1);
 		imagePanel.add(pixelSizeInput);
 		imagePanel.add(sampleDepthInput);
@@ -163,7 +174,7 @@ public class LaunchGUI {
 		frame.pack();
 		frame.setVisible(true);
 	}
-	
+
 	private Properties getInputs() {
 		Properties properties = new Properties(DEFAULT_RENDER_PROPERTIES);
 		properties.setProperty(RenderSettings.RENDER_METHOD, renderTypeButtons.getSelection().getActionCommand());
@@ -176,52 +187,53 @@ public class LaunchGUI {
 		properties.setProperty(RenderSettings.SAMPLE_DEPTH, String.valueOf(sampleDepthSpinner.getValue()));
 		return properties;
 	}
-	
-	private void setInputs(Properties properties) {
+
+	private void setInputs(Properties _properties) {
 		Enumeration<AbstractButton> buttons = renderTypeButtons.getElements();
 		AbstractButton thisButton = buttons.nextElement();
-		for (int i = 0; i < Integer.parseInt(properties.getProperty(RenderSettings.RENDER_METHOD)); i++) {
+		for (int i = 0; i < Integer.parseInt(_properties.getProperty(RenderSettings.RENDER_METHOD)); i++) {
 			thisButton = buttons.nextElement();
 		}
 		renderTypeButtons.setSelected(thisButton.getModel(), true);
-		smoothedCheckBox.setSelected(Boolean.parseBoolean(properties.getProperty(RenderSettings.IS_SMOOTHED)));
-		xAxisScaleSpinner.setValue(Double.parseDouble(properties.getProperty(RenderSettings.X_AXIS_SCALE)));
-		yAxisScaleSpinner.setValue(Double.parseDouble(properties.getProperty(RenderSettings.Y_AXIS_SCALE)));
-		xAxisOffsetSpinner.setValue(Double.parseDouble(properties.getProperty(RenderSettings.X_AXIS_OFFSET)));
-		yAxisOffsetSpinner.setValue(Double.parseDouble(properties.getProperty(RenderSettings.Y_AXIS_OFFSET)));
-		imagePixelsSquareSpinner.setValue(Integer.parseInt(properties.getProperty(RenderSettings.IMAGE_PIXELS_SQUARE)));
-		sampleDepthSpinner.setValue(Integer.parseInt(properties.getProperty(RenderSettings.SAMPLE_DEPTH)));
+		smoothedCheckBox.setSelected(Boolean.parseBoolean(_properties.getProperty(RenderSettings.IS_SMOOTHED)));
+		xAxisScaleSpinner.setValue(Double.parseDouble(_properties.getProperty(RenderSettings.X_AXIS_SCALE)));
+		yAxisScaleSpinner.setValue(Double.parseDouble(_properties.getProperty(RenderSettings.Y_AXIS_SCALE)));
+		xAxisOffsetSpinner.setValue(Double.parseDouble(_properties.getProperty(RenderSettings.X_AXIS_OFFSET)));
+		yAxisOffsetSpinner.setValue(Double.parseDouble(_properties.getProperty(RenderSettings.Y_AXIS_OFFSET)));
+		imagePixelsSquareSpinner
+				.setValue(Integer.parseInt(_properties.getProperty(RenderSettings.IMAGE_PIXELS_SQUARE)));
+		sampleDepthSpinner.setValue(Integer.parseInt(_properties.getProperty(RenderSettings.SAMPLE_DEPTH)));
 	}
-	
-	private static void saveProperties(Properties properties, String fileName) {
+
+	private static void saveProperties(Properties _properties, String _fileName) {
 		try {
-			File f = new File(fileName);
+			File f = new File(_fileName);
 			FileOutputStream outputStream = new FileOutputStream(f);
-			properties.storeToXML(outputStream, null);
+			_properties.storeToXML(outputStream, null);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.err.println("Save failed due to file missing.");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.err.println("Save failed due to I/O error.");
 			e.printStackTrace();
 		}
 	}
-	
-	private static Properties loadProperties(String fileName) {
+
+	private static Properties loadProperties(String _fileName) {
 		try {
 			Properties properties = new Properties(DEFAULT_RENDER_PROPERTIES);
-			File f = new File(fileName);
+			File f = new File(_fileName);
 			FileInputStream inputStream = new FileInputStream(f);
 			properties.loadFromXML(inputStream);
 			return properties;
 		} catch (InvalidPropertiesFormatException e) {
-			// TODO Auto-generated catch block
+			System.err.println("Load failed due to XML file format.");
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.err.println("Load failed due to file missing.");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.err.println("Load failed due to file I/O error.");
 			e.printStackTrace();
 		}
 		return null;

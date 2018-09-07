@@ -33,7 +33,7 @@ public class Mandelbrot extends JPanel {
 	private int[] colourPalette;
 	private int[] histogram;
 	private double[] complex;
-	
+
 	public Mandelbrot(Properties settings) {
 		imagePixelsSquare = Integer.parseInt(settings.getProperty(RenderSettings.IMAGE_PIXELS_SQUARE));
 		xAxisScale = Double.parseDouble(settings.getProperty(RenderSettings.X_AXIS_SCALE));
@@ -122,8 +122,9 @@ public class Mandelbrot extends JPanel {
 			}
 		}
 	}
-	
-	private static double absoluteToRelativePosition(int _pixel, int _imageScale, double _axisScale, double _axisOffset) {
+
+	private static double absoluteToRelativePosition(int _pixel, int _imageScale, double _axisScale,
+			double _axisOffset) {
 		return (_pixel - _imageScale / 2.0) / _imageScale * 4.0 / _axisScale + _axisOffset;
 	}
 
@@ -187,8 +188,10 @@ public class Mandelbrot extends JPanel {
 		}
 	}
 
-	private static int getHistogramColourIndex(int[] _colourPalette, float _hue, double _repetitions, double _offsetPercentage) {
-		return (int) Math.floor(_hue * _colourPalette.length * _repetitions + _colourPalette.length * _offsetPercentage);
+	private static int getHistogramColourIndex(int[] _colourPalette, float _hue, double _repetitions,
+			double _offsetPercentage) {
+		return (int) Math
+				.floor(_hue * _colourPalette.length * _repetitions + _colourPalette.length * _offsetPercentage);
 	}
 
 	private static int smoothColourGen(double _i2, int _colourStart, int _colourEnd) {
@@ -234,7 +237,7 @@ public class Mandelbrot extends JPanel {
 		super.paint(_g);
 		_g.drawImage(imageBuffer, 0, 0, null);
 	}
-	
+
 	public static void mandelbrotSet(Properties settings) {
 		JFrame frame = new JFrame("Mandelbrot");
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -265,20 +268,24 @@ public class Mandelbrot extends JPanel {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale, canvas.xAxisOffset);
-				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale, canvas.yAxisOffset);
+				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale,
+						canvas.xAxisOffset);
+				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale,
+						canvas.yAxisOffset);
 				toolbar.setMouseSavedPosition(x, y);
 			}
 		});
 		canvas.addMouseMotionListener(new MouseMotionListener() {
-			
+
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale, canvas.xAxisOffset);
-				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale, canvas.yAxisOffset);
+				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale,
+						canvas.xAxisOffset);
+				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale,
+						canvas.yAxisOffset);
 				toolbar.setMouseCurrentPosition(x, y);
 			}
-			
+
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				// TODO Auto-generated method stub

@@ -23,7 +23,8 @@ public class ImageBarGUI {
 
 	public ImageBarGUI(BufferedImage imageBuffer) {
 		toolbar = new JToolBar("Image settings");
-		JButton saveButton = new JButton("Save image");
+		JButton saveButton = new JButton("Save");
+		saveButton.setToolTipText("Saves the full rendered image");
 		mousePositionCurrent = new JLabel("Current position: ");
 		mousePositionSaved = new JLabel("Saved position: ");
 		saveButton.addActionListener(new ActionListener() {
@@ -33,7 +34,7 @@ public class ImageBarGUI {
 				JFileChooser fileChooser = new JFileChooser();
 				fileChooser.setDialogTitle("Save image");
 				fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
-				fileChooser.setAcceptAllFileFilterUsed(true);
+				fileChooser.setAcceptAllFileFilterUsed(false);
 				fileChooser.setFileFilter(new FileNameExtensionFilter("PNG image", "png"));
 				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JPEG image", "jpg", "jpeg"));
 				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("GIF image", "gif"));
@@ -44,16 +45,13 @@ public class ImageBarGUI {
 					String selectedDescription = fileChooser.getFileFilter().getDescription().toLowerCase();
 					String selectedFileTypeExtension = selectedDescription.substring(0,
 							selectedDescription.indexOf(" "));
-					if (selectedFileTypeExtension.equals("all")) {
-						selectedFileTypeExtension = saveFile.toString()
-								.substring(saveFile.toString().lastIndexOf(".") + 1, saveFile.toString().length());
-					} else if (!saveFile.toString().endsWith("." + selectedFileTypeExtension)) {
+					if (!saveFile.toString().endsWith("." + selectedFileTypeExtension)) {
 						saveFile = new File(saveFile.toString() + "." + selectedFileTypeExtension);
 					}
 					try {
 						ImageIO.write(imageBuffer, selectedFileTypeExtension, saveFile);
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
+						System.err.println("Save failed due to I/O error.");
 						e1.printStackTrace();
 					}
 				}

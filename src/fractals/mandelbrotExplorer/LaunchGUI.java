@@ -119,7 +119,7 @@ public class LaunchGUI {
 		JButton renderButton = new JButton("Render");
 		renderButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent _event) {
 				Properties renderProperties = getInputs();
 				Mandelbrot.mandelbrotSet(renderProperties);
 			}
@@ -128,7 +128,7 @@ public class LaunchGUI {
 		saveButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent _event) {
 				JFileChooser fileChooser = new JFileChooser();
 				fileChooser.setDialogTitle("Save settings");
 				fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -146,7 +146,7 @@ public class LaunchGUI {
 		loadButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent _event) {
 				JFileChooser fileChooser = new JFileChooser();
 				fileChooser.setDialogTitle("Load setttings");
 				fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);

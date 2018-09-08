@@ -21,7 +21,7 @@ public class ImageBarGUI {
 	private JLabel mousePositionCurrent;
 	private JLabel mousePositionSaved;
 
-	public ImageBarGUI(BufferedImage imageBuffer) {
+	public ImageBarGUI(BufferedImage _imageBuffer) {
 		toolbar = new JToolBar("Image settings");
 		JButton saveButton = new JButton("Save");
 		saveButton.setToolTipText("Saves the full rendered image");
@@ -30,7 +30,7 @@ public class ImageBarGUI {
 		saveButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent _event) {
 				JFileChooser fileChooser = new JFileChooser();
 				fileChooser.setDialogTitle("Save image");
 				fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -49,10 +49,10 @@ public class ImageBarGUI {
 						saveFile = new File(saveFile.toString() + "." + selectedFileTypeExtension);
 					}
 					try {
-						ImageIO.write(imageBuffer, selectedFileTypeExtension, saveFile);
-					} catch (IOException e1) {
+						ImageIO.write(_imageBuffer, selectedFileTypeExtension, saveFile);
+					} catch (IOException _exception) {
 						System.err.println("Save failed due to I/O error.");
-						e1.printStackTrace();
+						_exception.printStackTrace();
 					}
 				}
 			}
@@ -71,12 +71,12 @@ public class ImageBarGUI {
 		return toolbar;
 	}
 
-	public void setMouseCurrentPosition(double x, double y) {
-		mousePositionCurrent.setText("Current position: (" + x + ", " + y + ")");
+	public void setMouseCurrentPosition(double _x, double _y) {
+		mousePositionCurrent.setText("Current position: (" + _x + ", " + _y + ")");
 	}
 
-	public void setMouseSavedPosition(double x, double y) {
-		mousePositionSaved.setText("Saved position: (" + x + ", " + y + ")");
+	public void setMouseSavedPosition(double _x, double _y) {
+		mousePositionSaved.setText("Saved position: (" + _x + ", " + _y + ")");
 	}
 
 }

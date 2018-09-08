@@ -34,14 +34,14 @@ public class Mandelbrot extends JPanel {
 	private int[] histogram;
 	private double[] complex;
 
-	public Mandelbrot(Properties settings) {
-		imagePixelsSquare = Integer.parseInt(settings.getProperty(RenderSettings.IMAGE_PIXELS_SQUARE));
-		xAxisScale = Double.parseDouble(settings.getProperty(RenderSettings.X_AXIS_SCALE));
-		yAxisScale = Double.parseDouble(settings.getProperty(RenderSettings.Y_AXIS_SCALE));
-		xAxisOffset = Double.parseDouble(settings.getProperty(RenderSettings.X_AXIS_OFFSET));
-		yAxisOffset = Double.parseDouble(settings.getProperty(RenderSettings.Y_AXIS_OFFSET));
-		sampleDepth = Integer.parseInt(settings.getProperty(RenderSettings.SAMPLE_DEPTH));
-		boolean isSmoothed = Boolean.parseBoolean(settings.getProperty(RenderSettings.IS_SMOOTHED));
+	public Mandelbrot(Properties _settings) {
+		imagePixelsSquare = Integer.parseInt(_settings.getProperty(RenderSettings.IMAGE_PIXELS_SQUARE));
+		xAxisScale = Double.parseDouble(_settings.getProperty(RenderSettings.X_AXIS_SCALE));
+		yAxisScale = Double.parseDouble(_settings.getProperty(RenderSettings.Y_AXIS_SCALE));
+		xAxisOffset = Double.parseDouble(_settings.getProperty(RenderSettings.X_AXIS_OFFSET));
+		yAxisOffset = Double.parseDouble(_settings.getProperty(RenderSettings.Y_AXIS_OFFSET));
+		sampleDepth = Integer.parseInt(_settings.getProperty(RenderSettings.SAMPLE_DEPTH));
+		boolean isSmoothed = Boolean.parseBoolean(_settings.getProperty(RenderSettings.IS_SMOOTHED));
 		setPreferredSize(new Dimension(imagePixelsSquare, imagePixelsSquare));
 		// sets up the colours
 		colourPalette = new int[1000];
@@ -53,7 +53,7 @@ public class Mandelbrot extends JPanel {
 		complex = new double[imagePixelsSquare * imagePixelsSquare];
 		preGenerateColours();
 		calculateIterantTerminations(isSmoothed);
-		switch (Integer.parseInt(settings.getProperty(RenderSettings.RENDER_METHOD))) {
+		switch (Integer.parseInt(_settings.getProperty(RenderSettings.RENDER_METHOD))) {
 		case RenderSettings.LINEAR:
 			linearColouring(isSmoothed);
 			break;
@@ -238,39 +238,39 @@ public class Mandelbrot extends JPanel {
 		_g.drawImage(imageBuffer, 0, 0, null);
 	}
 
-	public static void mandelbrotSet(Properties settings) {
+	public static void mandelbrotSet(Properties _settings) {
 		JFrame frame = new JFrame("Mandelbrot");
 		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
-		Mandelbrot canvas = new Mandelbrot(settings);
+		Mandelbrot canvas = new Mandelbrot(_settings);
 		ImageBarGUI toolbar = new ImageBarGUI(canvas.imageBuffer);
 		canvas.addMouseListener(new MouseListener() {
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
+			public void mouseReleased(MouseEvent _event) {
 				// TODO Auto-generated method stub
 			}
 
 			@Override
-			public void mousePressed(MouseEvent e) {
+			public void mousePressed(MouseEvent _event) {
 				// TODO Auto-generated method stub
 			}
 
 			@Override
-			public void mouseExited(MouseEvent e) {
+			public void mouseExited(MouseEvent _event) {
 				// TODO Auto-generated method stub
 			}
 
 			@Override
-			public void mouseEntered(MouseEvent e) {
+			public void mouseEntered(MouseEvent _event) {
 				// TODO Auto-generated method stub
 			}
 
 			@Override
-			public void mouseClicked(MouseEvent e) {
-				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale,
+			public void mouseClicked(MouseEvent _event) {
+				double x = absoluteToRelativePosition(_event.getX(), canvas.imagePixelsSquare, canvas.xAxisScale,
 						canvas.xAxisOffset);
-				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale,
+				double y = absoluteToRelativePosition(_event.getY(), canvas.imagePixelsSquare, canvas.yAxisScale,
 						canvas.yAxisOffset);
 				toolbar.setMouseSavedPosition(x, y);
 			}
@@ -278,16 +278,16 @@ public class Mandelbrot extends JPanel {
 		canvas.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
-			public void mouseMoved(MouseEvent e) {
-				double x = absoluteToRelativePosition(e.getX(), canvas.imagePixelsSquare, canvas.xAxisScale,
+			public void mouseMoved(MouseEvent _event) {
+				double x = absoluteToRelativePosition(_event.getX(), canvas.imagePixelsSquare, canvas.xAxisScale,
 						canvas.xAxisOffset);
-				double y = absoluteToRelativePosition(e.getY(), canvas.imagePixelsSquare, canvas.yAxisScale,
+				double y = absoluteToRelativePosition(_event.getY(), canvas.imagePixelsSquare, canvas.yAxisScale,
 						canvas.yAxisOffset);
 				toolbar.setMouseCurrentPosition(x, y);
 			}
 
 			@Override
-			public void mouseDragged(MouseEvent e) {
+			public void mouseDragged(MouseEvent _event) {
 				// TODO Auto-generated method stub
 			}
 		});
@@ -299,7 +299,7 @@ public class Mandelbrot extends JPanel {
 		frame.setVisible(true);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] _args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				new LaunchGUI();
